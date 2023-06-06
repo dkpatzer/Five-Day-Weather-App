@@ -1,58 +1,140 @@
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-  }
-  
-  header {
-    background-color: #f5f5f5;
-    padding: 20px;
-    text-align: center;
-  }
-  
-  h1 {
-    margin: 0;
-  }
-  
-  form {
-    margin-top: 20px;
-  }
-  
-  input[type="text"] {
-    padding: 5px;
-    font-size: 16px;
-  }
-  
-  button {
-    padding: 5px 10px;
-    font-size: 16px;
-    background-color: #4caf50;
-    color: #fff;
-    border: none;
-    cursor: pointer;
-  }
-  
-  main {
-    padding: 20px;
-  }
-  
-  .card {
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 10px;
-    margin-bottom: 10px;
-  }
-  
-  .card .date {
-    font-weight: bold;
-    margin-bottom: 5px;
-  }
-  
-  .card .temperature {
-    margin-bottom: 5px;
-  }
-  
-  .card .description {
-    color: #666;
-  }
-  
+.header {
+  background-color: darkblue;
+  padding: 20px;
+  text-align: center;
+}
+
+.header h1 {
+  color: white;
+  font-size: 36px;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.content-container {
+  display: flex;
+  width: 100%;
+}
+
+.search-container {
+  width: 25%;
+}
+
+.search-container input {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.search-container button {
+  padding: 8px 20px;
+  margin-top: 10px;
+  background-color: green;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.previous-searches-container {
+  width: 25%;
+}
+
+.previous-searches-container .previous-search {
+  background-color: #ccc;
+  border: 2px solid #000;
+  margin-bottom: 10px;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.weather-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.weather-card {
+  border: 2px solid #000;
+  border-radius: 4px;
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+  width: 75%; /* Set width to 75% of the container */
+  max-width: 750px; /* Limit the maximum width */
+  background-color: lightblue;
+  color: white;
+  margin-left: 25%; /* Add margin to start from 1/4 of the page */
+  box-sizing: border-box; /* Include padding and border in width calculation */
+}
+
+.forecast-container {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  margin-top: 20px;
+}
+
+.forecast-card {
+  flex: 0 0 auto;
+  border: 2px solid #000;
+  border-radius: 4px;
+  padding: 20px;
+  text-align: center;
+  width: 100px;
+  margin-right: 20px;
+}
+
+.card {
+  border: 2px solid black;
+  border-radius: 6px;
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+  width: calc(100% - 40px); /* 75% width minus margins */
+  max-width: 400px; /* Limit the width to 400px */
+  background-color: lightblue;
+  color: white;
+}
+
+.card.weather-card {
+  border-top: none; /* Remove top border for weather card */
+  margin-top: 0; /* Remove top margin for weather card */
+  margin-bottom: 20px; /* Add bottom margin to separate from forecast */
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

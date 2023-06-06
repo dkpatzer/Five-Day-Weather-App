@@ -7,15 +7,37 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
+  <div class="header">
     <h1>Weather Dashboard</h1>
-    <form id="city-form">
-      <input type="text" id="city-input" placeholder="Enter city name">
-      <button type="submit">Search</button>
-    </form>
-  </header>
-  <main id="weather-container"></main>
-  
-  <script src="script.js"></script>
+  </div>
+  <div class="container">
+    <div class="content-container">
+      <div class="search-container">
+        <form id="city-form">
+          <input type="text" id="city-input" placeholder="Enter a city" required>
+          <button type="submit">Search</button>
+        </form>
+        <div id="previous-cities-container"></div> <!-- Update the id here -->
+      </div>
+      <div class="weather-container">
+        <div id="current-weather" class="card"></div>
+        <div id="forecast-container" class="forecast-container">
+          <h2 id="forecast-header" class="forecast-header">5-Day Forecast</h2>
+
+          <div id="forecast-content"></div>
+        </div>
+        
+      </div>
+      
+      </div>
+      
+      <script src="script.js"></script>
 </body>
 </html>
+
+
+
+
+
+
+
