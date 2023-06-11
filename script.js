@@ -49,8 +49,7 @@ function displayCurrentWeather(data) {
       <p>Temperature: ${temperatureCelsius} °C / ${temperatureFahrenheit} °F</p>
       <p>Humidity: ${main.humidity}%</p>
       <p>Wind Speed: ${wind.speed} m/s</p>
-    </div>
-  `;
+    </div>`;
 
   currentWeatherContainer.innerHTML = html;
 }
@@ -77,7 +76,8 @@ function displayForecast(data) {
 
   forecastContainer.innerHTML = '';
 
-  for (let i = 0; i < data.list.length; i += 8) {
+  for (let i = 3; i < data.list.length; i += 8) {
+    console.log (data.list[i]);
     const forecast = data.list[i];
     const date = new Date(forecast.dt * 1000);
     const day = date.toLocaleDateString('en-US', { weekday: 'short' });
@@ -146,9 +146,13 @@ function loadSearchHistory() {
 
 
 
-
 // Call the loadSearchHistory function after defining it
 loadSearchHistory();
+
+
+
+
+
 
 
 
