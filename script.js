@@ -1,163 +1,173 @@
-const API_KEY = '541b8a096fbdd859aa865feaadefa64b'; // Replace with your OpenWeatherMap API key
+const apiKey = '541b8a096fbdd859aa865feaadefa64b';
+let searchHistory = [];
 
-const cityForm = document.getElementById('city-form');
-const cityInput = document.getElementById('city-input');
-const currentWeatherContainer = document.getElementById('current-weather');
-const forecastContainer = document.getElementById('forecast-container');
-const previousCitiesContainer = document.getElementById('previous-cities-container');
+const cityInputEl = document.querySelector("#city-input");
+const searchButtonEl = document.querySelector("#search-button");
+const clearButtonEl = document.querySelector("#clear-button");
+const historyFormEl = document.querySelector("#history");
+const currentWeatherEl = document.querySelector("#current-weather");
+const cityNameEl = document.querySelector("#city-name");
+const currentPicEl = document.querySelector("#current-pic");
+const temperatureEl = document.querySelector("#temperature");
+const humidityEl = document.querySelector("#humidity");
+const windSpeedEl = document.querySelector("#wind-speed");
+const forecastEls = document.querySelectorAll(".forecast");
 
-// Handle form submission
-cityForm.addEventListener('submit', function (event) {
+searchButtonEl.addEventListener("click", searchCity);
+clearButtonEl.addEventListener("click", clearHistory);
+historyFormEl.addEventListener("click", selectCity);
+
+function searchCity(event) {
   event.preventDefault();
-  const city = cityInput.value.trim();
+
+  const city = cityInputEl.value.trim();
 
   if (city) {
-    getWeatherData(city);
-    cityInput.value = '';
+    getCoordinates(city);
+    cityInputEl.value = "";
   }
-});
+}
 
-// Get weather data for a given city
-function getWeatherData(city) {
-  const weatherURL = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${'541b8a096fbdd859aa865feaadefa64b'}`;
+function getCoordinates(city) {
+  const coordinatesURL = `https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=${apiKey}`;
+
+  fetch(coordinatesURL)
+    .then(function (response) {
+      return response.json();
+    })
+    .then(function (data) {
+      if (data.length === 0) {
+        return;
+      }
+
+      const latitude = data[0].lat;
+      const longitude = data[0].lon;
+
+      getWeather(city, latitude, longitude);
+    })
+    .catch(function (error) {
+      // Handle error in case of network failure
+    });
+}
+
+function getWeather(city, latitude, longitude) {
+  const weatherURL = `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${apiKey}`;
 
   fetch(weatherURL)
-    .then(response => response.json())
-    .then(data => {
-      displayCurrentWeather(data);
-      getForecastData(data.coord.lat, data.coord.lon);
-      addCityToHistory(city);
+    .then(function (response) {
+      return response.json();
     })
-    .catch(error => console.error('Error:', error));
-}
-
-// Display current weather conditions
-function displayCurrentWeather(data) {
-  const { name, dt, main, weather, wind } = data;
-  const temperatureCelsius = Math.round(main.temp - 273.15); // Convert temperature to Celsius and round up
-  const temperatureFahrenheit = Math.round((main.temp * 9) / 5 - 459.67); // Convert temperature to Fahrenheit and round up
-
-  const currentDate = new Date(dt * 1000).toLocaleDateString();
-
-  // Check if iconURL is defined and not empty
-  const iconURL = weather[0].icon ? `https://openweathermap.org/img/w/${weather[0].icon}.png` : '';
-
-  const html = `
-    <div class="card">
-      <h2>${name} (${currentDate})</h2>
-      <img src="${iconURL}" alt="Weather Icon">
-      <p>Temperature: ${temperatureCelsius} °C / ${temperatureFahrenheit} °F</p>
-      <p>Humidity: ${main.humidity}%</p>
-      <p>Wind Speed: ${wind.speed} m/s</p>
-    </div>`;
-
-  currentWeatherContainer.innerHTML = html;
-}
-
-// Get 5-day forecast for a given coordinates
-function getForecastData(lat, lon) {
-  const forecastURL = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${'541b8a096fbdd859aa865feaadefa64b'}`;
-
-  fetch(forecastURL)
-    .then(response => response.json())
-    .then(data => {
-      displayForecast(data);
+    .then(function (data) {
+      displayWeather(city, data);
+      saveSearch(city);
     })
-    .catch(error => console.error('Error:', error));
+    .catch(function (error) {
+      // Handle error in case of network failure
+    });
 }
 
-// Display forecast
-function displayForecast(data) {
-  const forecastHeader = document.getElementById('forecast-header');
+function displayWeather(city, data) {
+  currentWeatherEl.classList.remove("d-none");
+  cityNameEl.textContent = city;
+  currentPicEl.setAttribute("src", "");
+  temperatureEl.textContent = "";
+  humidityEl.textContent = "";
+  windSpeedEl.textContent = "";
 
-  if (forecastHeader) {
-    forecastHeader.textContent = '5-Day Forecast';
+  for (let i = 0; i < forecastEls.length; i++) {
+    forecastEls[i].textContent = "";
   }
 
-  forecastContainer.innerHTML = '';
+  const currentWeather = data.list[0];
+  const iconCode = currentWeather.weather[0].icon;
+  const iconURL = `http://openweathermap.org/img/w/${iconCode}.png`;
 
-  for (let i = 3; i < data.list.length; i += 8) {
-    console.log (data.list[i]);
-    const forecast = data.list[i];
-    const date = new Date(forecast.dt * 1000);
-    const day = date.toLocaleDateString('en-US', { weekday: 'short' });
-    const month = date.toLocaleDateString('en-US', { month: 'short' });
-    const dayNumber = date.getDate();
+  cityNameEl.textContent = `${city} (${getCurrentDate()})`;
+  currentPicEl.setAttribute("src", iconURL);
+  temperatureEl.textContent = `Temperature: ${convertKelvinToCelsius(
+    currentWeather.main.temp
+  )} °C`;
+  humidityEl.textContent = `Humidity: ${currentWeather.main.humidity}%`;
+  windSpeedEl.textContent = `Wind Speed: ${currentWeather.wind.speed} m/s`;
 
-    const temperatureCelsius = Math.round(forecast.main.temp - 273.15);
-    const temperatureFahrenheit = Math.round((forecast.main.temp * 9) / 5 - 459.67);
+  for (let i = 1; i <=5; i++) {
+    const forecast = data.list[(i * 8)-1];
+    const forecastDate = getForecastDate(i);
+    const forecastIconCode = forecast.weather[0].icon;
+    const forecastIconURL = `http://openweathermap.org/img/w/${forecastIconCode}.png`;
 
-    const iconURL = forecast.weather[0].icon ? `https://openweathermap.org/img/w/${forecast.weather[0].icon}.png` : '';
+    forecastEls[i - 1].textContent = forecastDate;
+    forecastEls[i - 1].innerHTML += `<img src="${forecastIconURL}" alt="">`;
+    forecastEls[i - 1].innerHTML += `<p>Temperature: ${convertKelvinToCelsius(
+      forecast.main.temp
+    )} °C</p>`;
 
-    const html = `
-      <div class="forecast-card">
-        <h3>${day}</h3>
-        <p>${month} ${dayNumber}</p>
-        <img src="${iconURL}" alt="Weather Icon">
-        <p>Temp: ${temperatureCelsius} °C / ${temperatureFahrenheit} °F</p>
-        <p>Humidity: ${forecast.main.humidity}%</p>
-        <p>Wind: ${forecast.wind.speed} m/s</p>
-      </div>
-    `;
-
-    forecastContainer.innerHTML += html;
+    forecastEls[i - 1].innerHTML += `<p>Wind Speed: ${forecast.wind.speed} m/s</p>`;
+    forecastEls[i - 1].innerHTML += `<p>Humidity: ${forecast.main.humidity}%</p>`;
   }
 }
 
-// Add city to search history
-function addCityToHistory(city) {
-  const history = localStorage.getItem('searchHistory') || '[]';
-  const searchHistory = JSON.parse(history);
-
-  if (!searchHistory.includes(city)) {
+function saveSearch(city) {
+  if (searchHistory.indexOf(city) === -1) {
     searchHistory.push(city);
-    localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
-    displaySearchHistory(searchHistory);
+    localStorage.setItem("searchHistory", JSON.stringify(searchHistory));
+
+    const historyButton = document.createElement("button");
+    historyButton.setAttribute("type", "button");
+    historyButton.setAttribute("class", "btn btn-secondary");
+    historyButton.textContent = city;
+
+    historyFormEl.appendChild(historyButton);
   }
 }
 
-// Display search history
-function displaySearchHistory(searchHistory) {
-  previousCitiesContainer.innerHTML = '';
-
-  searchHistory.forEach(city => {
-    const html = `
-      <div class="previous-search">
-        <button onclick="getWeatherData('${city}')">${city}</button>
-      </div>
-    `;
-
-    previousCitiesContainer.innerHTML += html;
-  });
-}
-
-// Load search history from local storage
 function loadSearchHistory() {
-  const defaultCity = 'Nashville';
-  const defaultLatitude = 36.162230;
-  const defaultLongitude = -86.774353;
+  const savedHistory = localStorage.getItem("searchHistory");
 
-  getWeatherData(defaultCity, defaultLatitude, defaultLongitude);
+  if (savedHistory) {
+    searchHistory = JSON.parse(savedHistory);
 
-  const history = localStorage.getItem('searchHistory') || '[]';
-  const searchHistory = JSON.parse(history);
-  displaySearchHistory(searchHistory);
+    for (let i = 0; i < searchHistory.length; i++) {
+      const historyButton = document.createElement("button");
+      historyButton.setAttribute("type", "button");
+      historyButton.setAttribute("class", "btn btn-secondary");
+      historyButton.textContent = searchHistory[i];
+
+      historyFormEl.appendChild(historyButton);
+    }
+  }
 }
 
+function clearHistory() {
+  localStorage.removeItem("searchHistory");
+  searchHistory = [];
+  historyFormEl.innerHTML = "";
+}
 
+function selectCity(event) {
+  if (event.target.matches("button")) {
+    const selectedCity = event.target.textContent;
+    getCoordinates(selectedCity);
+  }
+}
 
-// Call the loadSearchHistory function after defining it
+function getCurrentDate() {
+  const currentDate = new Date();
+  const options = { weekday: "long", month: "long", day: "numeric" };
+  return currentDate.toLocaleDateString("en-US", options);
+}
+
+function getForecastDate(day) {
+  const currentDate = new Date();
+  currentDate.setDate(currentDate.getDate() + day);
+  const options = { weekday: "long", month: "long", day: "numeric" };
+  return currentDate.toLocaleDateString("en-US", options);
+}
+
+function convertKelvinToCelsius(kelvin) {
+  return (kelvin - 273.15).toFixed(2);
+}
+
 loadSearchHistory();
-
-
-
-
-
-
-
-
-
-
-
 
 
