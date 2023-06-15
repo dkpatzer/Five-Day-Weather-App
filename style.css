@@ -1,12 +1,12 @@
 /* styles.css */
 
-/* Body */
+/* Set body background color and font styles */
 body {
-  background-color: #f1f1f1;
+  background-color: #f5f5f5;
   font-family: Arial, sans-serif;
 }
 
-/* Header */
+/* Style the header */
 header {
   background-color: #007bff;
   padding: 20px;
@@ -14,69 +14,72 @@ header {
 
 header h1 {
   color: #fff;
-  font-size: 28px;
-  margin: 0;
 }
 
-/* Search Form */
-#city-input {
-  width: 100%;
+/* Style the input group */
+.input-group {
+  margin-bottom: 20px;
 }
 
+/* Style the search button */
 #search-button {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
 
+/* Style the clear button */
 #clear-button {
-  margin-top: 10px;
+  width: 100%;
 }
 
-/* Current Weather */
-#current-weather {
-  background-color: #fff;
-  border-radius: 10px;
-  padding: 20px;
-}
-
-#current-pic {
-  width: 100px;
-  height: 100px;
+/* Style the history buttons */
+#history button {
   margin-bottom: 10px;
+  width: 100%;
 }
 
-#temperature {
-  font-size: 18px;
-  font-weight: bold;
-}
-
-#humidity,
-#wind-speed {
-  font-size: 16px;
-}
-
-/* 5-Day Forecast */
-#fiveday-header {
+/* Style the current weather card */
+#current-weather {
   margin-top: 20px;
 }
 
-.forecast {
-  background-color: #007bff;
-  color: #fff;
-  padding: 10px;
+#current-weather .card-body {
   text-align: center;
-  border-radius: 10px;
 }
 
-.forecast img {
-  width: 50px;
-  height: 50px;
+#current-weather img {
+  max-width: 100px;
+  margin: 10px auto;
+}
+
+#current-weather p {
+  margin-bottom: 5px;
+}
+
+/* Style the forecast cards */
+.forecast {
+  text-align: center;
+  color: #fff;
+  padding: 10px;
+}
+
+/* Style the 5-day forecast header */
+#fiveday-header {
+  margin-top: 20px;
   margin-bottom: 10px;
 }
 
-.forecast p {
-  margin-bottom: 5px;
+#fiveday-header h3 {
+  font-weight: bold;
 }
+
+/* Responsive styles for small devices */
+@media (max-width: 767px) {
+  .col-md-6 {
+    margin-bottom: 20px;
+  }
+}
+
 
 
 

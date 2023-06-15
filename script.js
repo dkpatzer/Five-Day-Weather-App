@@ -13,9 +13,38 @@ const humidityEl = document.querySelector("#humidity");
 const windSpeedEl = document.querySelector("#wind-speed");
 const forecastEls = document.querySelectorAll(".forecast");
 
-searchButtonEl.addEventListener("click", searchCity);
-clearButtonEl.addEventListener("click", clearHistory);
-historyFormEl.addEventListener("click", selectCity);
+function setDefaultCity() {
+  // Store the default city in localStorage
+  localStorage.setItem("defaultCity", "Nashville, TN");
+
+  // Retrieve the default city from localStorage
+  const defaultCity = localStorage.getItem("defaultCity");
+  console.log(defaultCity);
+
+  // Display weather information for the default city
+  getCoordinates(defaultCity);
+}
+
+function loadSearchHistory() {
+  const savedHistory = localStorage.getItem("searchHistory");
+
+  if (savedHistory) {
+    searchHistory = JSON.parse(savedHistory);
+
+    for (let i = 0; i < searchHistory.length; i++) {
+      const historyButton = document.createElement("button");
+      historyButton.setAttribute("type", "button");
+      historyButton.setAttribute("class", "btn btn-secondary");
+      historyButton.textContent = searchHistory[i];
+
+      historyFormEl.appendChild(historyButton);
+      
+    }
+   
+  }
+}
+
+
 
 function searchCity(event) {
   event.preventDefault();
@@ -29,30 +58,49 @@ function searchCity(event) {
 }
 
 function getCoordinates(city) {
-  const coordinatesURL = `https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=${apiKey}`;
+  console.log("getCoordinates called with city:", city);
+  if (city === "") {
+    // Default city: Nashville, TN
+    const latitude = 36.1627;
+    const longitude = -86.7816;
+    getWeather(city, latitude, longitude);
+  } else {
+    const coordinatesURL = `https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=${'541b8a096fbdd859aa865feaadefa64b'}`;
 
-  fetch(coordinatesURL)
-    .then(function (response) {
-      return response.json();
-    })
-    .then(function (data) {
-      if (data.length === 0) {
-        return;
-      }
+    console.log("Before fetch request");
+    fetch(coordinatesURL)
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (data) {
+        if (data.length === 0) {
+          return;
+        }
 
-      const latitude = data[0].lat;
-      const longitude = data[0].lon;
+        const latitude = data[0].lat;
+        const longitude = data[0].lon;
 
-      getWeather(city, latitude, longitude);
-    })
-    .catch(function (error) {
-      // Handle error in case of network failure
-    });
+        getWeather(city, latitude, longitude);
+      })
+      .catch(function (error) {
+        console.log("Error fetching coordinates:", error);
+        // Handle error in case of network failure
+      });
+  }
 }
 
-function getWeather(city, latitude, longitude) {
-  const weatherURL = `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${apiKey}`;
 
+
+
+function getWeather(city, latitude, longitude) {
+  console.log("getWeather called with city:", city);
+  console.log("Latitude:", latitude);
+  console.log("Longitude:", longitude);
+
+  const weatherURL = `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${apiKey}`;
+  console.log("weatherURL:", weatherURL); // Check the URL 
+
+  console.log("Before fetch request");
   fetch(weatherURL)
     .then(function (response) {
       return response.json();
@@ -62,10 +110,23 @@ function getWeather(city, latitude, longitude) {
       saveSearch(city);
     })
     .catch(function (error) {
+      console.log("Error fetching coordinates:", error);
       // Handle error in case of network failure
     });
 }
+// Function to convert temperature from Celsius to Fahrenheit
+function convertCelsiusToFahrenheit(celsius) {
+  return (celsius * 9) / 5 + 32;
+}
+// Function to convert temperature from Kelvin to Celsius
+function convertKelvinToCelsius(kelvin) {
+  return Math.round(kelvin - 273.15);
+}
 
+// Function to convert temperature from Celsius to Fahrenheit
+function convertCelsiusToFahrenheit(celsius) {
+  return Math.round((celsius * 9) / 5 + 32);
+}
 function displayWeather(city, data) {
   currentWeatherEl.classList.remove("d-none");
   cityNameEl.textContent = city;
@@ -84,28 +145,32 @@ function displayWeather(city, data) {
 
   cityNameEl.textContent = `${city} (${getCurrentDate()})`;
   currentPicEl.setAttribute("src", iconURL);
-  temperatureEl.textContent = `Temperature: ${convertKelvinToCelsius(
-    currentWeather.main.temp
-  )} °C`;
+
+  const celsius = convertKelvinToCelsius(currentWeather.main.temp);
+  const fahrenheit = convertCelsiusToFahrenheit(celsius);
+  temperatureEl.innerHTML = `Temperature: ${celsius} °C / ${fahrenheit} °F`;
+
   humidityEl.textContent = `Humidity: ${currentWeather.main.humidity}%`;
   windSpeedEl.textContent = `Wind Speed: ${currentWeather.wind.speed} m/s`;
 
-  for (let i = 1; i <=5; i++) {
-    const forecast = data.list[(i * 8)-1];
+  for (let i = 1; i <= 5; i++) {
+    const forecast = data.list[i * 8 - 1];
     const forecastDate = getForecastDate(i);
     const forecastIconCode = forecast.weather[0].icon;
     const forecastIconURL = `http://openweathermap.org/img/w/${forecastIconCode}.png`;
 
     forecastEls[i - 1].textContent = forecastDate;
     forecastEls[i - 1].innerHTML += `<img src="${forecastIconURL}" alt="">`;
-    forecastEls[i - 1].innerHTML += `<p>Temperature: ${convertKelvinToCelsius(
-      forecast.main.temp
-    )} °C</p>`;
+
+    const forecastCelsius = convertKelvinToCelsius(forecast.main.temp);
+    const forecastFahrenheit = convertCelsiusToFahrenheit(forecastCelsius);
+    forecastEls[i - 1].innerHTML += `<p>Temperature: ${forecastCelsius} °C / ${forecastFahrenheit} °F</p>`;
 
     forecastEls[i - 1].innerHTML += `<p>Wind Speed: ${forecast.wind.speed} m/s</p>`;
     forecastEls[i - 1].innerHTML += `<p>Humidity: ${forecast.main.humidity}%</p>`;
   }
 }
+
 
 function saveSearch(city) {
   if (searchHistory.indexOf(city) === -1) {
@@ -121,22 +186,18 @@ function saveSearch(city) {
   }
 }
 
-function loadSearchHistory() {
-  const savedHistory = localStorage.getItem("searchHistory");
+function searchCity(event) {
+  event.preventDefault();
 
-  if (savedHistory) {
-    searchHistory = JSON.parse(savedHistory);
+  const city = cityInputEl.value.trim();
 
-    for (let i = 0; i < searchHistory.length; i++) {
-      const historyButton = document.createElement("button");
-      historyButton.setAttribute("type", "button");
-      historyButton.setAttribute("class", "btn btn-secondary");
-      historyButton.textContent = searchHistory[i];
-
-      historyFormEl.appendChild(historyButton);
-    }
+  if (city) {
+    getCoordinates(city);
+    cityInputEl.value = "";
   }
 }
+
+
 
 function clearHistory() {
   localStorage.removeItem("searchHistory");
@@ -169,5 +230,11 @@ function convertKelvinToCelsius(kelvin) {
 }
 
 loadSearchHistory();
+
+searchButtonEl.addEventListener("click", searchCity);
+clearButtonEl.addEventListener("click", clearHistory);
+historyFormEl.addEventListener("click", selectCity);
+
+setDefaultCity();
 
 
