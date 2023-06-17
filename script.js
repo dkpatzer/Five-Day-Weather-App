@@ -107,8 +107,11 @@ function getWeather(city, latitude, longitude) {
     .catch(function (error) {
       console.log("Error fetching weather data:", error);
       // Handle error in case of network failure
+
     });
 }
+
+
 // Update the weather forecast for the city that was searched for
 // Remove the d-none class from the currentWeatherEl element to make it visible
 // Display the city name, current weather icon, temperature, humidity, and wind speed by extracting from the data object and updating the DOM
@@ -165,9 +168,10 @@ function saveSearch(city) {
     historyButton.setAttribute("type", "button");
     historyButton.classList.add("btn", "btn-success", "previous-city");
     historyButton.textContent = capitalizeFirstLetter(city);
-
     historyFormEl.appendChild(historyButton);
   }
+
+  localStorage.setItem('lastCity', city); 
 }
 // clear the search history, empty the searchHistory array and remove the search history from the DOM
 function clearHistory() {
