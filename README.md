@@ -44,5 +44,9 @@ The function convertKelvintoCelsius() converts the temperature from Kelvin to Ce
 THe function convertCelciustoFahrenheit() converts the temperature from Celsius to Fahrenheit.
 Event listeners are added to the search button, the clear button, and the search history buttons and the setDefaultCity() function is called.
 
+Credits:
+
+The Five-Day Weather App was developed by David Patzer as part of the NU coding bootcamp. I obtained information from many sources to help put this together. This includes: OpenWeatherMap API Documentation/OpenWeatherMap API Guides and Tutorials at: https://openweathermap.org/api, MDN's DOM manipulation documentation at https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model, Stack Overflow, Display 7 Day Weather Forecast with OpenWeather API https://javascript.plainenglish.io/display-7-day-weather-forecast-with-openweather-api-aac8ba21c9e3, W3Schools, and a YouTube video Build a Weather App with HTML, CSS & JavaScript by Jonah Lawrence • Dev Pro Tips, and  I found and reviewd an app on GitHub  https://github.com/sylviaprabudy/weather-dashboard. In addition, I used ChatGpt, not to build the app but to check my code and explain some aspepects of the code.
+
 
 
