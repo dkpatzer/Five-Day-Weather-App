@@ -32,16 +32,8 @@ header h1 {
   width: 100%;
 }
 
-/* Style the history buttons */
-#history button {
-  margin-bottom: 10px;
-  width: 100%;
-}
 
-/* Style the current weather card */
-#current-weather {
-  margin-top: 20px;
-}
+
 
 #current-weather .card-body {
   text-align: center;

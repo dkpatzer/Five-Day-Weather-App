@@ -1,1 +1,2 @@
 # Five-Day-Weather-App
+This is a weather app that displays the current weather and the five-day forecast for a given city. It uses the OpenWeather API to get the weather data, and the Google Places API to get the latitude and longitude of the city. It uses the following technologies: HTML, CSS, JavaScript, Node.js, Express.js, OpenWeather API, and Google Places API. It is deployed to Heroku.
