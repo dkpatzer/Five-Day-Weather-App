@@ -80,6 +80,12 @@ header h1 {
   }
 }
 
+.btn-success.previous-city {
+  background-color: green;
+  color: white;
+}
+/* Custom styling for green color */
+
 
 
 

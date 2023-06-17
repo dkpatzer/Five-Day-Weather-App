@@ -1,6 +1,7 @@
+// Set api key for openweathermap.org and create an empty array for search history
 const apiKey = '541b8a096fbdd859aa865feaadefa64b';
 let searchHistory = [];
-
+// Select elements from the DOM using their id or class name using querySelector to update and manipulate the DOM
 const cityInputEl = document.querySelector("#city-input");
 const searchButtonEl = document.querySelector("#search-button");
 const clearButtonEl = document.querySelector("#clear-button");
@@ -14,38 +15,42 @@ const windSpeedEl = document.querySelector("#wind-speed");
 const forecastEls = document.querySelectorAll(".forecast");
 
 function setDefaultCity() {
-  // Store the default city in localStorage
+  // Store the default city as Nashville, TN and store in the browser's localStorage
   localStorage.setItem("defaultCity", "Nashville, TN");
-
-  // Retrieve the default city from localStorage
-  const defaultCity = localStorage.getItem("defaultCity");
-  console.log(defaultCity);
-
-  // Display weather information for the default city
-  getCoordinates(defaultCity);
 }
 
+function loadLastCity() {
+  const lastCity = localStorage.getItem('lastCity');
+  if (lastCity) {
+    getCoordinates(lastCity);
+  } else {
+    setDefaultCity();
+    const defaultCity = localStorage.getItem("defaultCity");
+    getCoordinates(defaultCity);
+  }
+}
+// Load the last city searched for when the page is loaded
 function loadSearchHistory() {
   const savedHistory = localStorage.getItem("searchHistory");
 
   if (savedHistory) {
     searchHistory = JSON.parse(savedHistory);
-
+  // iterate through the search history array and create a button for each city
     for (let i = 0; i < searchHistory.length; i++) {
       const historyButton = document.createElement("button");
       historyButton.setAttribute("type", "button");
-      historyButton.setAttribute("class", "btn btn-secondary");
-      historyButton.textContent = searchHistory[i];
+      historyButton.classList.add("btn", "btn-success", "previous-city");
+      historyButton.textContent = capitalizeFirstLetter(searchHistory[i]);
 
       historyFormEl.appendChild(historyButton);
-      
     }
-   
   }
 }
-
-
-
+// Capitalize the first letter of each word in the city name. Use slice to return the rest of the string after the first letter
+function capitalizeFirstLetter(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+// call the loadSearchHistory function when search button is clicked. Trim the city name and call the getCoordinates function
 function searchCity(event) {
   event.preventDefault();
 
@@ -56,18 +61,17 @@ function searchCity(event) {
     cityInputEl.value = "";
   }
 }
-
+// Pass the latitude, and longitude to the getWeather function
+// Fetch function to send an HTTP GET request to the openweathermap.org API
 function getCoordinates(city) {
-  console.log("getCoordinates called with city:", city);
   if (city === "") {
     // Default city: Nashville, TN
     const latitude = 36.1627;
     const longitude = -86.7816;
     getWeather(city, latitude, longitude);
   } else {
-    const coordinatesURL = `https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=${'541b8a096fbdd859aa865feaadefa64b'}`;
+    const coordinatesURL = `https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=${apiKey}`;
 
-    console.log("Before fetch request");
     fetch(coordinatesURL)
       .then(function (response) {
         return response.json();
@@ -88,19 +92,10 @@ function getCoordinates(city) {
       });
   }
 }
-
-
-
-
+// Retrieve weather forecast data for a given city using the api key, latitude and longitude
 function getWeather(city, latitude, longitude) {
-  console.log("getWeather called with city:", city);
-  console.log("Latitude:", latitude);
-  console.log("Longitude:", longitude);
-
   const weatherURL = `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${apiKey}`;
-  console.log("weatherURL:", weatherURL); // Check the URL 
-
-  console.log("Before fetch request");
+// fetch function to send an HTTP GET request to the openweathermap.org API
   fetch(weatherURL)
     .then(function (response) {
       return response.json();
@@ -110,23 +105,13 @@ function getWeather(city, latitude, longitude) {
       saveSearch(city);
     })
     .catch(function (error) {
-      console.log("Error fetching coordinates:", error);
+      console.log("Error fetching weather data:", error);
       // Handle error in case of network failure
     });
 }
-// Function to convert temperature from Celsius to Fahrenheit
-function convertCelsiusToFahrenheit(celsius) {
-  return (celsius * 9) / 5 + 32;
-}
-// Function to convert temperature from Kelvin to Celsius
-function convertKelvinToCelsius(kelvin) {
-  return Math.round(kelvin - 273.15);
-}
-
-// Function to convert temperature from Celsius to Fahrenheit
-function convertCelsiusToFahrenheit(celsius) {
-  return Math.round((celsius * 9) / 5 + 32);
-}
+// Update the weather forecast for the city that was searched for
+// Remove the d-none class from the currentWeatherEl element to make it visible
+// Display the city name, current weather icon, temperature, humidity, and wind speed by extracting from the data object and updating the DOM
 function displayWeather(city, data) {
   currentWeatherEl.classList.remove("d-none");
   cityNameEl.textContent = city;
@@ -171,7 +156,6 @@ function displayWeather(city, data) {
   }
 }
 
-
 function saveSearch(city) {
   if (searchHistory.indexOf(city) === -1) {
     searchHistory.push(city);
@@ -179,26 +163,13 @@ function saveSearch(city) {
 
     const historyButton = document.createElement("button");
     historyButton.setAttribute("type", "button");
-    historyButton.setAttribute("class", "btn btn-secondary");
-    historyButton.textContent = city;
+    historyButton.classList.add("btn", "btn-success", "previous-city");
+    historyButton.textContent = capitalizeFirstLetter(city);
 
     historyFormEl.appendChild(historyButton);
   }
 }
-
-function searchCity(event) {
-  event.preventDefault();
-
-  const city = cityInputEl.value.trim();
-
-  if (city) {
-    getCoordinates(city);
-    cityInputEl.value = "";
-  }
-}
-
-
-
+// clear the search history, empty the searchHistory array and remove the search history from the DOM
 function clearHistory() {
   localStorage.removeItem("searchHistory");
   searchHistory = [];
@@ -211,30 +182,38 @@ function selectCity(event) {
     getCoordinates(selectedCity);
   }
 }
-
+// return current and create a new date object
 function getCurrentDate() {
   const currentDate = new Date();
   const options = { weekday: "long", month: "long", day: "numeric" };
   return currentDate.toLocaleDateString("en-US", options);
 }
-
+// return the date for the forecast
 function getForecastDate(day) {
   const currentDate = new Date();
   currentDate.setDate(currentDate.getDate() + day);
   const options = { weekday: "long", month: "long", day: "numeric" };
   return currentDate.toLocaleDateString("en-US", options);
 }
-
+// convert temperature from Kelvin to Celsius and round to 2 decimal places
 function convertKelvinToCelsius(kelvin) {
   return (kelvin - 273.15).toFixed(2);
 }
+// Convert temperature from Celsius to Fahrenheit and round to nearest integer
+function convertCelsiusToFahrenheit(celsius) {
+  return Math.round((celsius * 9) / 5 + 32);
+}
 
-loadSearchHistory();
 
+// Load last city or default city on page load
+window.addEventListener('DOMContentLoaded', function () {
+  loadLastCity();
+});
+// Event listeners for search, clear and history buttons
 searchButtonEl.addEventListener("click", searchCity);
 clearButtonEl.addEventListener("click", clearHistory);
 historyFormEl.addEventListener("click", selectCity);
-
+// Call function to set default city and store in local storage
 setDefaultCity();
 
 
